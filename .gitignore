@@ -1,1 +1,4 @@
 */.DS_Store
+.idea
+*.weights
+darknet53.conv.74
