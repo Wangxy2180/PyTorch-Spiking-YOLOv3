@@ -13,9 +13,14 @@ def generate_spike_mem_potential(out_s, mem_potential, Vthr, reset_mode):
     mem_potential: is a placeholder Tensor with [*sizes]
     """
     spikes = []
+    print("spike layer.py line 16:Vthr is", Vthr)
     for t in range(out_s.size(0)):
+        # 这个都没有卷积，就直接这么加了
+        # 因为out_s就是经过卷积的
         mem_potential += out_s[t]
         spike = (mem_potential >= Vthr).float()
+        # 对于产生脉冲的神经元，你是直接置0还是减去阈值的部分
+        # 肯定置0啊，这还用判断？
         if reset_mode == 'zero':
             mem_potential *= (1 - spike)
         elif reset_mode == 'subtraction':
@@ -68,6 +73,7 @@ class SpikeConv2d(nn.Conv2d):
         self.bn = bn
 
     def forward(self, x):
+        # x是用作训练的数据
         if isinstance(x, SpikeTensor):
             Vthr = self.Vthr.view(1, -1, 1, 1)
             out = F.conv2d(x.data, self.weight, self.bias, self.stride, self.padding, self.dilation,
@@ -76,8 +82,11 @@ class SpikeConv2d(nn.Conv2d):
                 out = self.bn(out)
             chw = out.size()[1:]
             out_s = out.view(x.timesteps, -1, *chw)
+            # 每次都会置0
             self.mem_potential = torch.zeros(out_s.size(1), *chw).to(out_s.device)
+            # out_s是一个序列，和返回值spikes同size？吧
             spikes = generate_spike_mem_potential(out_s, self.mem_potential, Vthr, self.reset_mode)
+            # 这里SpikeTensor返回的到底是个啥？
             out = SpikeTensor(torch.cat(spikes, 0), x.timesteps, self.out_scales)
             return out
         else:

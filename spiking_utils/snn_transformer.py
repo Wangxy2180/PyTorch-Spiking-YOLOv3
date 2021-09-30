@@ -66,6 +66,7 @@ class SNNTransformer:
         self.channel_wise = args.channel_wise
 
     def init_dag(self, inputs):
+        # 从这里开始，snn_dag中存的就是SNN的相关操作了
         self.snn_dag = ann_parser.parse_ann_model(self.original_net, inputs)
         self.snn_dag.to(self.device)
         # trace spike layers
@@ -134,6 +135,7 @@ class SNNTransformer:
         self.fuse_bn()
         for layer_i, (layer_name, layer) in enumerate(self.snn_dag.named_modules()):
             if is_layer_weighted_spike(layer):
+                # layer是spike卷積、翻卷积、全连接
                 print(f"processing layer {layer_name}")
                 # TODO: supporting specify the first layer for multi input branch network
                 input_status = self.input_status[layer_name]

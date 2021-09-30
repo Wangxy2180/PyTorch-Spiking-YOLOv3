@@ -4,11 +4,13 @@ from utils.parse_config import *
 
 ONNX_EXPORT = False
 
-
+# 创建网络结构
+# (模型的dict，(416,416)，cfg文件)
 def create_modules(module_defs, img_size, cfg):
     # Constructs module list of layer blocks from module configuration in module_defs
-
+    # 应该是看size是一个int数还是一个tuple
     img_size = [img_size] * 2 if isinstance(img_size, int) else img_size  # expand if necessary
+    # 还能pop(0)这么用？
     _ = module_defs.pop(0)  # cfg training hyperparams (unused)
     output_filters = [3]  # input channels
     module_list = nn.ModuleList()
@@ -259,8 +261,9 @@ class Darknet(nn.Module):
 
     def __init__(self, cfg, img_size=(416, 416), verbose=False):
         super(Darknet, self).__init__()
-
+        # 解析出网络结构
         self.module_defs = parse_model_cfg(cfg)
+        # 返回一个可以用来训练的模型List(其中参数会自动注册到网络中，可直接训练)，和一个捷径
         self.module_list, self.routs = create_modules(self.module_defs, img_size, cfg)
         self.yolo_layers = get_yolo_layers(self)
         # torch_utils.initialize_weights(self)

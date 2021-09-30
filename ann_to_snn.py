@@ -174,6 +174,7 @@ if __name__ == '__main__':
 
     # Transform
     transformer = SNNTransformer(opt, ann_to_transform, device)
+    # 下边这句，CNN变SNN操作
     # calculate the statistics for parameter-normalization with train_dataloader
     transformer.inference_get_status(dataloader, opt.statistics_iters)
     snn = transformer.generate_snn()

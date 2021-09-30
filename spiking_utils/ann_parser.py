@@ -164,7 +164,9 @@ def concat_wrapper(tensors, dim=None):
     dag.add_node(out_nodes[0], out)
     return out
 
-
+# 下边的两个函数，
+# wrap一个是从正常的卷积池化等操作变为脉冲的卷积池化等操作
+# unwrap是再变换回去
 def wrap():
     raw = F.relu
     wrapped_functions["relu"] = raw
@@ -217,6 +219,7 @@ def parse_ann_model(model, inputs):
         name = f'dag_input{i}'
         dag.nodes[name] = inp
         dag.inputs_nodes.append(name)
+    # 这个打包和解包只在这里使用了
     wrap()
     model(*warpped_input)
     unwrap()

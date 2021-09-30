@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-
+# 从cfg文件中解析除网络结构
 def parse_model_cfg(path):
     # Parse the yolo *.cfg file and return module definitions path may be 'cfg/yolov3.cfg', 'yolov3.cfg', or 'yolov3'
     if not path.endswith('.cfg'):  # add .cfg suffix if omitted
